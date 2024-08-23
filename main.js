@@ -1,3 +1,4 @@
+
 import gsap from "gsap";
 import * as THREE from 'three'
 import {ScrollToPlugin} from "gsap/ScrollToPlugin";
@@ -13,32 +14,97 @@ export class Main {
     constructor(container) {
         this.container = container
         this.products = [...this.container.querySelectorAll('.merch-collection-item')];
-        this.moods = [...this.container.querySelectorAll('.home-mood-cc-item')];
+        this.moods = [...this.container.querySelectorAll('.merch-collection-item')];
+        this.musicItems = [...this.container.querySelectorAll('.home-music-cc-item')];
         this.init();
     }
 
     init() {
+        this.initSplitting()
         this.addEventListeners()
-        //this.initFAQ();
+        this.initSwiper()
+
+    }
+
+    initSplitting() {
+        //Initialize Splitting, split the text into characters and get the results
+        const targets = [...this.container.querySelectorAll("[split-text]")];
+        const results = Splitting({ target: targets, by: "chars" });
+
+        //Get all the words and wrap each word in a span
+        let words = this.container.querySelectorAll(".word");
+        words.forEach((word) => {
+            let wrapper = document.createElement("span");
+            wrapper.classList.add("char-wrap");
+            word.parentNode.insertBefore(wrapper, word);
+            wrapper.appendChild(word);
+        });
+
+        //Get all the characters and move them off the screen
+        this.chars = results.map((result) => result.chars);
+        gsap.set(this.chars, { yPercent: 120});
+
+        //Group the characters into pairs because we have one for title and one for category, we need this for accurate index
+        //this.charGroups = this.groupItems(chars);
+        this.showText()
+    }
+
+    showText(){
+        const scrollWords = [...document.querySelectorAll('[split-text="scroll"]')]
+        const scrollWords2 = [...document.querySelectorAll('[split-text="lines"]')]
+
+        scrollWords.forEach(word=>{
+            gsap.to(word.querySelectorAll('.char'), {
+                yPercent: 0,
+                stagger: 0.1,
+                ease: 'expo.out',
+                scrollTrigger: {
+                    trigger: word,
+                    invalidateOnRefresh: true,
+                    start: 'top 98%',
+                    duration:1,
+                    ease: 'expo.out',
+                }
+            })
+        })
+
+        scrollWords2.forEach(word=>{
+            gsap.to(word.querySelectorAll('.char'), {
+                yPercent: 0,
+                duration: 2,
+                ease: 'expo.out',
+                scrollTrigger: {
+                    trigger: word,
+                    invalidateOnRefresh: true,
+                    start: 'top 98%',
+                    duration:1,
+                    scrub: true,
+                    ease: 'expo.out',
+                }
+            })
+        })
+
     }
 
     addEventListeners(){
         this.products.forEach(product => {
             let tlProductHover = gsap.timeline({paused: true});
-            //tlProductHover.to(product.querySelector('.merch-visual-item:nth-child(1)'), {opacity:0, duration: 0.3})
+            tlProductHover.to(product.querySelector('.merch-visual-item:nth-child(1)'), {opacity:0, duration: 0.3})
             tlProductHover.to(product.querySelector('.merch-visual-item:nth-child(2)'), {opacity:1, duration: 0.3}, "<0.05")
 
 
             product.addEventListener('mouseenter', () => {
+                console.log(product)
                 tlProductHover.play();
             })
             product.addEventListener('mouseleave', () => {
                 tlProductHover.reverse();
             })
         })
+
         this.moods.forEach(mood => {
             let tlProductHover = gsap.timeline({paused: true});
-            tlProductHover.to(mood.querySelector('.home-mood-title'), {opacity:1, duration: 0.5}, )
+            tlProductHover.to(mood.querySelector('.home-mood-title'), {opacity:1, duration: 0.5} )
 
              mood.addEventListener('mouseenter', () => {
                 tlProductHover.play();
@@ -47,6 +113,36 @@ export class Main {
                 tlProductHover.reverse();
             })
         })
+
+        this.musicItems.forEach(musicItem => {
+            let tlMusic = gsap.timeline({paused: true});
+            tlMusic.to(musicItem.querySelector('.listen-wrapper'), {clipPath: 'inset(0% 0% 0% 0%)', duration: 0.5})
+                    .to(musicItem.querySelectorAll('.char'), {yPercent: 0, stagger: 0.05, ease: 'expo.out'}, "<")
+
+             musicItem.addEventListener('mouseenter', () => {
+                 tlMusic.timeScale(1)
+                tlMusic.play();
+            })
+            musicItem.addEventListener('mouseleave', () => {
+                tlMusic.timeScale(1.5)
+                tlMusic.reverse();
+            });
+        })
+    }
+
+
+    initSwiper() {
+        this.swiper = new Swiper(".swiper", {
+            slidesPerView: 'auto',
+            spaceBetween: 16,
+            grabCursor: true,
+            centeredSlides: true,
+            loop: true,
+            navigation: {
+                nextEl: ".arrow-block.next",
+                prevEl: ".arrow-block.prev",
+            },
+        });
     }
 }
 
@@ -168,7 +264,7 @@ class Home{
         this.renderer = new THREE.WebGLRenderer({antialias: true});
         this.renderer.setSize(sizes.width, sizes.height)
         this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-        this.renderer.setClearColor('#fff');
+        this.renderer.setClearColor(0xffffff, 0);
         this.renderer.outputColorSpace = THREE.SRGBColorSpace;
         this.canvasContainer.appendChild(this.renderer.domElement);
     }
