@@ -6,6 +6,7 @@ export default {
                 main: '/main.js', // The path should be relative to the project root
                 product: '/product.js',
                 global: '/global.js',
+                shop: '/shop.js',
                 // Add more files as needed
             }
         }
