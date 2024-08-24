@@ -148,6 +148,129 @@ export class Main {
 
 new Main(document.querySelector('.main'))
 
+class CanvasImageSequencePlayer {
+    constructor(containerSelector, imageCount, baseUrl) {
+        this.container = document.querySelector(containerSelector);
+        if (!this.container) {
+            console.error(`Container not found: ${containerSelector}`);
+            return;
+        }
+
+        this.imageCount = imageCount;
+        this.baseUrl = baseUrl;
+        this.currentIndex = 0;
+        this.images = [];
+        this.isPlaying = false;
+        this.interval = 100; // Interval between frames in milliseconds
+        this.lastTime = 0;
+
+        this.canvas = document.createElement('canvas');
+        this.ctx = this.canvas.getContext('2d');
+        this.container.appendChild(this.canvas);
+
+        this.preloadImages().then(() => {
+            console.log('All images preloaded');
+            this.play(); // Start playing once images are preloaded
+        }).catch((error) => {
+            console.error('Error preloading images:', error);
+        });
+
+        window.addEventListener('resize', () => this.resizeCanvas());
+        this.resizeCanvas();
+    }
+
+    async preloadImages() {
+        const loadPromises = [];
+
+        for (let i = 0; i <= this.imageCount; i++) {
+            const img = new Image();
+            img.src = `${this.baseUrl}/${String(i).padStart(4, '0')}.webp`;
+            console.log(`Loading image: ${img.src}`);
+            loadPromises.push(new Promise((resolve, reject) => {
+                img.onload = () => {
+                    console.log(`Image loaded: ${img.src}`);
+                    resolve(img);
+                };
+                img.onerror = () => {
+                    console.error(`Error loading image: ${img.src}`);
+                    reject(new Error(`Failed to load image: ${img.src}`));
+                };
+            }));
+        }
+
+        this.images = await Promise.all(loadPromises);
+    }
+
+    resizeCanvas() {
+        this.canvas.width = this.container.clientWidth;
+        this.canvas.height = this.container.clientHeight;
+        console.log(`Canvas resized to: ${this.canvas.width}x${this.canvas.height}`);
+    }
+
+    play() {
+        if (!this.isPlaying) {
+            this.isPlaying = true;
+            this.lastTime = performance.now();
+            this.update();
+            console.log('Animation started');
+        }
+    }
+
+    stop() {
+        this.isPlaying = false;
+        console.log('Animation stopped');
+    }
+
+    update() {
+        if (!this.isPlaying) return;
+
+        requestAnimationFrame((timestamp) => {
+            const elapsed = timestamp - this.lastTime;
+
+            if (elapsed > this.interval) {
+                this.currentIndex = (this.currentIndex + 1) % this.images.length;
+                this.drawFrame();
+                this.lastTime = timestamp;
+            }
+
+            this.update();
+        });
+    }
+
+    drawFrame() {
+        const img = this.images[this.currentIndex];
+        const canvasAspect = this.canvas.width / this.canvas.height;
+        const imgAspect = img.width / img.height;
+
+        let drawWidth, drawHeight, offsetX, offsetY;
+
+        if (canvasAspect > imgAspect) {
+            drawWidth = this.canvas.width;
+            drawHeight = drawWidth / imgAspect;
+            offsetX = 0;
+            offsetY = (this.canvas.height - drawHeight) / 2;
+        } else {
+            drawHeight = this.canvas.height;
+            drawWidth = drawHeight * imgAspect;
+            offsetX = (this.canvas.width - drawWidth) / 2;
+            offsetY = 0;
+        }
+
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
+    }
+}
+
+// Usage
+document.addEventListener('DOMContentLoaded', () => {
+    new CanvasImageSequencePlayer(
+        '.tiles-bg-content', // The container selector
+        120,                 // Number of images (from 0000 to 0120)
+        'https://cdn.jsdelivr.net/gh/theNkennaAmadi/audrey-webflow@master/public' // Base URL for images
+    );
+});
+
+
 
 class BentPlaneGeometry extends THREE.PlaneGeometry {
     constructor(radius, ...args) {
