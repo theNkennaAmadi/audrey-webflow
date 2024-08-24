@@ -6,22 +6,16 @@ import gsap from "gsap";
 export class Product {
     constructor(container) {
         this.container = container
-        this.faqs = [...this.container.querySelectorAll(".sp-faq-content")];
         this.products = [...this.container.querySelectorAll('.merch-collection-item')];
-
         this.init();
-        console.log('product')
     }
 
     init() {
         this.initSwiper();
         this.addEventListeners()
-        //this.initFAQ();
     }
 
     initSwiper() {
-
-
         const swiper = new Swiper(".product-thumb-wrapper", {
             freeMode: true,
             watchSlidesProgress: true,

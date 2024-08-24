@@ -1,4 +1,3 @@
-
 import gsap from "gsap";
 import * as THREE from 'three'
 import {ScrollToPlugin} from "gsap/ScrollToPlugin";
@@ -13,7 +12,7 @@ function extractPageSection(url) {
 export class Main {
     constructor(container) {
         this.container = container
-        this.products = [...this.container.querySelectorAll('.merch-collection-item')];
+        this.products = [...this.container.querySelectorAll('.home-merch-collection-item')];
         this.moods = [...this.container.querySelectorAll('.merch-collection-item')];
         this.musicItems = [...this.container.querySelectorAll('.home-music-cc-item')];
         this.init();
@@ -94,7 +93,6 @@ export class Main {
 
 
             product.addEventListener('mouseenter', () => {
-                console.log(product)
                 tlProductHover.play();
             })
             product.addEventListener('mouseleave', () => {
@@ -149,19 +147,14 @@ export class Main {
 new Main(document.querySelector('.main'))
 
 class CanvasImageSequencePlayer {
-    constructor(containerSelector, imageCount, baseUrl) {
-        this.container = document.querySelector(containerSelector);
-        if (!this.container) {
-            console.error(`Container not found: ${containerSelector}`);
-            return;
-        }
-
+    constructor(container, imageCount, baseUrl) {
+        this.container = container;
         this.imageCount = imageCount;
         this.baseUrl = baseUrl;
         this.currentIndex = 0;
         this.images = [];
         this.isPlaying = false;
-        this.interval = 100; // Interval between frames in milliseconds
+        this.interval = 30; // Interval between frames in milliseconds
         this.lastTime = 0;
 
         this.canvas = document.createElement('canvas');
@@ -169,13 +162,13 @@ class CanvasImageSequencePlayer {
         this.container.appendChild(this.canvas);
 
         this.preloadImages().then(() => {
-            console.log('All images preloaded');
+            //console.log('All images preloaded for container:', container);
             this.play(); // Start playing once images are preloaded
         }).catch((error) => {
-            console.error('Error preloading images:', error);
+           // console.error('Error preloading images for container:', container, error);
         });
 
-        window.addEventListener('resize', () => this.resizeCanvas());
+        //window.addEventListener('resize', () => this.resizeCanvas());
         this.resizeCanvas();
     }
 
@@ -185,14 +178,14 @@ class CanvasImageSequencePlayer {
         for (let i = 0; i <= this.imageCount; i++) {
             const img = new Image();
             img.src = `${this.baseUrl}/${String(i).padStart(4, '0')}.webp`;
-            console.log(`Loading image: ${img.src}`);
+            //console.log(`Loading image: ${img.src}`);
             loadPromises.push(new Promise((resolve, reject) => {
                 img.onload = () => {
-                    console.log(`Image loaded: ${img.src}`);
+                   // console.log(`Image loaded: ${img.src}`);
                     resolve(img);
                 };
                 img.onerror = () => {
-                    console.error(`Error loading image: ${img.src}`);
+                    //console.error(`Error loading image: ${img.src}`);
                     reject(new Error(`Failed to load image: ${img.src}`));
                 };
             }));
@@ -204,7 +197,7 @@ class CanvasImageSequencePlayer {
     resizeCanvas() {
         this.canvas.width = this.container.clientWidth;
         this.canvas.height = this.container.clientHeight;
-        console.log(`Canvas resized to: ${this.canvas.width}x${this.canvas.height}`);
+       // console.log(`Canvas resized to: ${this.canvas.width}x${this.canvas.height}`);
     }
 
     play() {
@@ -212,13 +205,13 @@ class CanvasImageSequencePlayer {
             this.isPlaying = true;
             this.lastTime = performance.now();
             this.update();
-            console.log('Animation started');
+          //  console.log('Animation started for container:', this.container);
         }
     }
 
     stop() {
         this.isPlaying = false;
-        console.log('Animation stopped');
+       // console.log('Animation stopped for container:', this.container);
     }
 
     update() {
@@ -263,12 +256,17 @@ class CanvasImageSequencePlayer {
 
 // Usage
 document.addEventListener('DOMContentLoaded', () => {
-    new CanvasImageSequencePlayer(
-        '.tiles-bg-content', // The container selector
-        120,                 // Number of images (from 0000 to 0120)
-        'https://cdn.jsdelivr.net/gh/theNkennaAmadi/audrey-webflow@master/public' // Base URL for images
-    );
+    const containers = document.querySelectorAll('.tiles-bg-content');
+
+    containers.forEach((container) => {
+        new CanvasImageSequencePlayer(
+            container, // The container element
+            120,       // Number of images (from 0000 to 0120)
+            'https://cdn.jsdelivr.net/gh/theNkennaAmadi/audrey-webflow@master/public' // Base URL for images
+        );
+    });
 });
+
 
 
 
@@ -723,6 +721,9 @@ class Home{
 }
 
 
+
+
 new Home(document.querySelector('.main'));
+
 
 
