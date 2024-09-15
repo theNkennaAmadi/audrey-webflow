@@ -256,8 +256,8 @@ class CanvasImageSequencePlayer {
 
 // Usage
 document.addEventListener('DOMContentLoaded', () => {
-    const containers = document.querySelectorAll('.tiles-bg-content');
-
+    //const containers = document.querySelectorAll('.tiles-bg-content');
+    /*
     containers.forEach((container) => {
         new CanvasImageSequencePlayer(
             container, // The container element
@@ -265,6 +265,8 @@ document.addEventListener('DOMContentLoaded', () => {
             'https://cdn.jsdelivr.net/gh/theNkennaAmadi/audrey-webflow@master/public' // Base URL for images
         );
     });
+
+     */
 });
 
 
@@ -295,6 +297,27 @@ class BentPlaneGeometry extends THREE.PlaneGeometry {
             mainV.copy(c).rotateAround(center, arc * uvRatio);
             pos.setXYZ(i, mainV.x, y, -mainV.y);
         }
+        // Adjust UV mapping to cover the surface without distortion
+        this.computeBoundingBox();
+        let boundingBox = this.boundingBox;
+        let width = boundingBox.max.x - boundingBox.min.x;
+        let height = boundingBox.max.y - boundingBox.min.y;
+        for (let i = 0; i < uv.count; i++) {
+            // Get the U and V coordinates and shift them to center the texture
+            let u = uv.getX(i) - 0.5;  // Center U coordinates
+            let v = uv.getY(i) - 0.5;  // Center V coordinates
+
+            // Flip the U coordinate (horizontal flip)
+            u = -u;
+
+            // Optionally, flip the V coordinate as well (vertical flip)
+            // v = -v;
+
+            // Set the new UV values, ensuring they are still centered and scaled
+            uv.setXY(i, (u * width) + 0.5, (v * height) + 0.5);
+        }
+
+        uv.needsUpdate = true;
         pos.needsUpdate = true;
     }
 }
@@ -325,7 +348,6 @@ const sizes = {
 
 let menuItems = [...document.querySelectorAll('.menu-title')];
 
-
 let items = menuItems.map((item) => {
     const link = item.querySelector('a').href;
     const imgURL = item.querySelector('.menu-image').src;
@@ -333,9 +355,6 @@ let items = menuItems.map((item) => {
     const poster = item.querySelector('.fallback-image').src;
     return { link, imgURL, videoURL, poster };
 });
-
-
-
 
 
 class Home{
@@ -382,7 +401,7 @@ class Home{
 
     initRenderer(){
         THREE.ColorManagement.enabled = true;
-        this.renderer = new THREE.WebGLRenderer({antialias: true});
+        this.renderer = new THREE.WebGLRenderer({antialias: false});
         this.renderer.setSize(sizes.width, sizes.height)
         this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
         this.renderer.setClearColor(0xffffff, 0);
@@ -533,7 +552,7 @@ class Home{
 
         const material = isVideo && videoTexture.map.readyState? videoTexture : new THREE.MeshBasicMaterial({ map: imgTexture, side: THREE.DoubleSide });
 
-        const geometry = new BentPlaneGeometry(0.1, 1, 0.75, 20, 20);
+        const geometry = new BentPlaneGeometry(0.1, 1, 1, 20, 20);
 
 
         const mesh = new THREE.Mesh(geometry, material);
@@ -719,9 +738,6 @@ class Home{
 
 
 }
-
-
-
 
 new Home(document.querySelector('.main'));
 
