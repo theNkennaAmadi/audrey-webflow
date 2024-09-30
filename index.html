@@ -1,13 +1,82 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite App</title>
-  </head>
-  <body>
-    <div id="app"></div>
-    <script type="module" src="/main.js"></script>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Countdown</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #121212;
+      color: white;
+    }
+    .countdown {
+      text-align: center;
+      font-size: 3em;
+    }
+    .countdown div {
+      display: inline-block;
+      margin: 0 10px;
+    }
+    .tune-in {
+      margin-top: 20px;
+      font-size: 1.5em;
+    }
+  </style>
+</head>
+<body>
+
+<div class="countdown">
+  <div id="days">00</div>:<div id="hours">00</div>:<div id="minutes">00</div>:<div id="seconds">00</div>
+  <div class="tune-in">
+    <button onclick="alert('Tuning in!')" style="font-size: 1.2em; padding: 10px 20px; cursor: pointer;">TUNE IN</button>
+  </div>
+</div>
+
+<!-- GSAP -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+
+<script>
+  // Set the date we're counting down to
+  const targetDate = new Date('October 18, 2024 00:00:00 EST').getTime();
+
+  // Update the countdown every second
+  let countdown = setInterval(() => {
+    const now = new Date().getTime();
+    const distance = targetDate - now;
+
+    // Time calculations for days, hours, minutes and seconds
+    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+    // Display the result in the corresponding elements
+    document.getElementById("days").innerHTML = days < 10 ? '0' + days : days;
+    document.getElementById("hours").innerHTML = hours < 10 ? '0' + hours : hours;
+    document.getElementById("minutes").innerHTML = minutes < 10 ? '0' + minutes : minutes;
+    document.getElementById("seconds").innerHTML = seconds < 10 ? '0' + seconds : seconds;
+
+    // If the countdown is over, stop the timer and display a message
+    if (distance < 0) {
+      clearInterval(countdown);
+      document.querySelector(".countdown").innerHTML = "EXPIRED";
+    }
+  }, 1000);
+
+  // GSAP Animation (Optional: you can adjust to add extra animation features)
+  gsap.to(".countdown div", {
+    duration: 0.5,
+    ease: "power2.inOut",
+    y: 10,
+    repeat: -1,
+    yoyo: true
+  });
+</script>
+
+</body>
 </html>

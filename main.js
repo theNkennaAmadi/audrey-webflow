@@ -22,7 +22,39 @@ export class Main {
         this.initSplitting()
         this.addEventListeners()
         this.initSwiper()
+        this.prelaunch()
+    }
 
+    prelaunch(){
+        // Set the date we're counting down to
+        const targetDate = new Date('October 18, 2024 00:00:00 EST').getTime();
+
+        // Update the countdown every second
+        let countdown = setInterval(() => {
+            const now = new Date().getTime();
+            const distance = targetDate - now;
+
+            // Time calculations for days, hours, minutes and seconds
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            // Display the result in the corresponding elements
+            document.getElementById("days").innerHTML = days < 10 ? '0' + days : days;
+            document.getElementById("hours").innerHTML = hours < 10 ? '0' + hours : hours;
+            document.getElementById("minutes").innerHTML = minutes < 10 ? '0' + minutes : minutes;
+            document.getElementById("seconds").innerHTML = seconds < 10 ? '0' + seconds : seconds;
+
+            // If the countdown is over, stop the timer and display a message
+            if (distance < 0) {
+                clearInterval(countdown);
+                document.querySelector(".prelaunch").remove();
+                document.body.classList.remove('no-scroll')
+            }
+        }, 1000);
+
+        gsap.fromTo('.time-unit', {yPercent: 20, opacity: 0}, {yPercent: 0, opacity: 1, stagger: 0.35, duration: 2, ease: 'expo.out', delay: 1})
     }
 
     initSplitting() {
