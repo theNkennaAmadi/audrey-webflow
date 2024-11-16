@@ -13,6 +13,7 @@ export class Product {
     init() {
         this.initSwiper();
         this.addEventListeners()
+
     }
 
     initSwiper() {
@@ -46,7 +47,7 @@ export class Product {
     addEventListeners(){
         this.products.forEach(product => {
             let tlProductHover = gsap.timeline({paused: true});
-            //tlProductHover.to(product.querySelector('.merch-visual-item:nth-child(1)'), {opacity:0, duration: 0.3})
+            tlProductHover.to(product.querySelector('.merch-visual-item:nth-child(1)'), {opacity:0, duration: 0.3})
             tlProductHover.to(product.querySelector('.merch-visual-item:nth-child(2)'), {opacity:1, duration: 0.3}, "<0.05")
 
 

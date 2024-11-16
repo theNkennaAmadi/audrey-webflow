@@ -1,13 +1,15 @@
 import gsap from "gsap";
 import * as THREE from 'three'
 import {ScrollToPlugin} from "gsap/ScrollToPlugin";
+import {ScrollTrigger} from "gsap/ScrollTrigger";
 
-gsap.registerPlugin(ScrollToPlugin);
+gsap.registerPlugin(ScrollToPlugin, ScrollTrigger);
 
 function extractPageSection(url) {
     const urlObject = new URL(url);
     return urlObject.hash; // This will return "#mood"
 }
+
 
 export class Main {
     constructor(container) {
@@ -612,6 +614,7 @@ class Home{
     createCarousel(){
         const radius = 1;
 
+
         items.map((item, index) => {
             const position = [
                 Math.sin((index / items.length) * Math.PI * 2) * radius,
@@ -701,12 +704,15 @@ class Home{
 
         //console.log(dragOffset)
 
+        const itemsLength = items.length;
+        const itemsPercent = itemsLength *100;
+
         // GSAP animation for menu titles
-        const wrapY = gsap.utils.wrap(-100, (5 - 1) * 100);
+        const wrapY = gsap.utils.wrap(-100, (itemsLength - 1) * 100);
         gsap.to(".menu-title", {
-            yPercent: (i) => wrapY((progress) * 500 - i * 100),
+            yPercent: (i) => wrapY((progress) * itemsPercent - i * 100),
             opacity: (i) => {
-                let m = wrapY((progress) * 500 - i * 100);
+                let m = wrapY((progress) * itemsPercent - i * 100);
                 if (m < 0 || m < 100) {
                     return m / 100 + 1 - 0.1;
                 } else {
